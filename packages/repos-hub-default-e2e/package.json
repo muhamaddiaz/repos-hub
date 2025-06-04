@@ -1,0 +1,10 @@
+{
+  "name": "@repos-hub/repos-hub-default-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "@repos-hub/repos-hub-default"
+    ]
+  }
+}
