@@ -1,13 +1,9 @@
-import NxWelcome from "./nx-welcome";
-
 export function App() {
   return (
     <div>
-      <NxWelcome title="@repos-hub/repos-hub-default"/>
+      <h1 className="text-5xl">Welcome to Repos Hub!</h1>
     </div>
   );
 }
 
 export default App;
-
-

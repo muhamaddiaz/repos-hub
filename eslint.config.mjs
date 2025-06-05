@@ -70,6 +70,7 @@ export default [
         "error",
       ],
       "unicorn/no-null": "off",
+      "unicorn/prefer-module": "off",
     },
     ignores: ["README.md", "CHANGELOG.md", "LICENSE", ".vscode", "dist", "build"],
   },
