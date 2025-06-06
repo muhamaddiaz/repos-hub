@@ -8,5 +8,5 @@ export * from "./lib/user-card";
 export * from "./lib/repo-card";
 export * from "./lib/carousel";
 
-export { SearchBadge } from "./lib/search-badge";
-export type { SearchBadgeProps } from "./lib/search-badge";
+export { SearchBadge } from "./lib/search-bar/search-badge";
+export type { SearchBadgeProps } from "./lib/search-bar/search-badge";

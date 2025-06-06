@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import { useRef, useCallback } from "react";
 
-import { useSearchDropdown } from "../hooks/use-search-dropdown";
-import { useSearchForm } from "../hooks/use-search-form";
+import { useSearchDropdown } from "../../hooks/use-search-dropdown";
+import { useSearchForm } from "../../hooks/use-search-form";
 import { SearchBadge } from "./search-badge";
 import { SearchDropdown } from "./search-dropdown";
 
@@ -54,7 +54,7 @@ export function SearchBar({
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { register, handleSubmit, query, resetQuery, currentError, formState } = useSearchForm({
+  const { register, handleSubmit, query, resetQuery, currentError } = useSearchForm({
     onInputChange,
     onSearch,
     error,

@@ -1,4 +1,4 @@
-import type { SearchSuggestion } from "./search-bar";
+import type { SearchSuggestion } from ".";
 
 export interface SearchBadgeProps {
   item: SearchSuggestion;

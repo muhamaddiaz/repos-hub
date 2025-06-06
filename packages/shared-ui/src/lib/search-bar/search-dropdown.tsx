@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { forwardRef } from "react";
 
-import type { SearchSuggestion } from "./search-bar";
+import type { SearchSuggestion } from ".";
 
 interface SearchDropdownProps {
   isQueryValid: boolean;
