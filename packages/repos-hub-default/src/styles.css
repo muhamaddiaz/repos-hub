@@ -1,4 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* You can add global styles to this file, and also import other style files */
+
+[data-theme="light"] {
+  --color-primary: #1C96E1 !important;
+}

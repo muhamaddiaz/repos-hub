@@ -1,5 +1,6 @@
-import react from "@vitejs/plugin-react";
 /// <reference types='vitest' />
+import react from "@vitejs/plugin-react";
+import path from "node:path";
 import { defineConfig } from "vite";
 
 export default defineConfig(() => ({
@@ -14,6 +15,11 @@ export default defineConfig(() => ({
     host: "localhost",
   },
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@repos-hub/shared-ui": path.resolve(__dirname, "../shared-ui/src/index.ts"),
+    },
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],

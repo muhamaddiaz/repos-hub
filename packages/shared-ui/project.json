@@ -1,0 +1,7 @@
+{
+  "name": "shared-ui",
+  "root": "packages/shared-ui",
+  "sourceRoot": "packages/shared-ui/src",
+  "projectType": "library",
+  "tags": ["npm:public"]
+}

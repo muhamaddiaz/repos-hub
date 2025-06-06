@@ -1,15 +1,15 @@
-import { render } from '@testing-library/react';
+import { render } from "@testing-library/react";
 
-import App from './app';
+import App from "./app";
 
-describe('App', () => {
-  it('should render successfully', () => {
+describe("App", () => {
+  it("should render successfully", () => {
     const { baseElement } = render(<App />);
     expect(baseElement).toBeTruthy();
   });
 
-  it('should have a greeting as the title', () => {
+  it("should have a greeting as the title", () => {
     const { getAllByText } = render(<App />);
-    expect(getAllByText(new RegExp('Welcome @repos-hub/repos-hub-default', 'gi')).length > 0).toBeTruthy();
+    expect(getAllByText(new RegExp("Welcome to Repos Hub", "gi")).length > 0).toBeTruthy();
   });
 });
