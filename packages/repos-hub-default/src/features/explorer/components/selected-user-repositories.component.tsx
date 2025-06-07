@@ -25,7 +25,7 @@ export const SelectedUserRepositories = ({
   }
 
   return (
-    <div className={`space-y-4 ${className || ""}`}>
+    <div className={className ? `space-y-4 ${className}` : "space-y-4"} data-testid="selected-user-repositories">
       {selectedUsers.map(user => (
         <UserRepositorySection key={user.id} user={user} />
       ))}

@@ -79,7 +79,10 @@ export const GitHubExplorer = ({ className }: GitHubExplorerProps) => {
   }, [selectedUsers, removeSelectedUser]);
 
   return (
-    <div className={`container p-4 max-w-5xl mx-auto min-h-screen bg-base-200 ${className || ""}`}>
+    <div
+      data-testid="github-explorer"
+      className={`container p-4 max-w-5xl mx-auto min-h-screen bg-base-200 ${className || ""}`}
+    >
       <div className="mx-auto">
         <SearchBar
           onSearch={() => null}
