@@ -1,5 +1,6 @@
 import "./styles.css";
 
+// Test comment for repos-hub-enhanced lint-staged
 import { Layout, queryClient } from "@repos-hub/shared-ui";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";

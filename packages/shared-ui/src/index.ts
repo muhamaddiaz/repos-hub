@@ -17,3 +17,6 @@ export * from "./schemas/search.schema";
 
 export { SearchBadge } from "./lib/search-bar/search-badge";
 export type { SearchBadgeProps } from "./lib/search-bar/search-badge";
+
+// Test comment for shared-ui lint-staged
+export * from "./lib";
