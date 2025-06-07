@@ -31,5 +31,6 @@ export default defineConfig({
     distPath: {
       root: "dist",
     },
+    assetPrefix: process.env.RSBUILD_PUBLIC_PATH || "/",
   },
 });

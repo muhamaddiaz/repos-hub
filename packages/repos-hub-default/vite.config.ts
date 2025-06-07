@@ -32,6 +32,7 @@ export default defineConfig(() => ({
       transformMixedEsModules: true,
     },
   },
+  base: process.env.VITE_BASE_PATH || "/",
   test: {
     watch: false,
     globals: true,

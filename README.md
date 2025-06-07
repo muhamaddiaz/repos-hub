@@ -4,7 +4,58 @@
 
 ✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+A modern monorepo containing multiple React applications built with Nx, featuring both Vite and Rsbuild configurations.
+
+## 🚀 Applications
+
+- **Default App** (`@repos-hub/repos-hub-default`) - Vite + React application
+- **Enhanced App** (`@repos-hub/repos-hub-enhanced`) - Rsbuild + React application  
+- **Shared UI** (`shared-ui`) - Shared component library
+
+## 📦 Quick Start
+
+```sh
+# Install dependencies
+pnpm install
+
+# Start development servers
+pnpm exec nx serve @repos-hub/repos-hub-default  # http://localhost:4200
+pnpm exec nx dev @repos-hub/repos-hub-enhanced   # http://localhost:4200
+
+# Build applications
+pnpm exec nx build @repos-hub/repos-hub-default
+pnpm exec nx build @repos-hub/repos-hub-enhanced
+
+# Run tests
+pnpm exec nx test @repos-hub/repos-hub-default
+pnpm exec nx test @repos-hub/repos-hub-enhanced
+```
+
+## 🌐 GitHub Pages Deployment
+
+This workspace is configured for automatic deployment to GitHub Pages. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+### Quick Deploy
+
+```sh
+# Using the helper script
+./scripts/deploy-gh-pages.sh build both    # Build both apps
+./scripts/deploy-gh-pages.sh preview both  # Build and preview locally
+./scripts/deploy-gh-pages.sh deploy        # Deploy to GitHub Pages
+```
+
+### Manual Deploy Commands
+
+```sh
+# Build for GitHub Pages
+VITE_BASE_PATH="/repos-hub/" pnpm exec nx build @repos-hub/repos-hub-default
+RSBUILD_PUBLIC_PATH="/repos-hub/" pnpm exec nx build @repos-hub/repos-hub-enhanced
+
+# Push to main branch to trigger deployment
+git push origin main
+```
+
+[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created.
 
 ## Finish your CI setup
 

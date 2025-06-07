@@ -1,0 +1,227 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'Choose which app to deploy'
+        required: true
+        default: 'repos-hub-default'
+        type: choice
+        options:
+          - repos-hub-default
+          - repos-hub-enhanced
+          - both
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.8.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Determine apps to build
+        id: apps
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            APP_CHOICE="${{ github.event.inputs.app }}"
+          else
+            # For push events, determine which apps changed
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+            
+            DEFAULT_CHANGED=false
+            ENHANCED_CHANGED=false
+            
+            if echo "$CHANGED_FILES" | grep -q "packages/repos-hub-default\|packages/shared-ui"; then
+              DEFAULT_CHANGED=true
+            fi
+            
+            if echo "$CHANGED_FILES" | grep -q "packages/repos-hub-enhanced\|packages/shared-ui"; then
+              ENHANCED_CHANGED=true
+            fi
+            
+            # If both changed or if it's the first push, build both
+            if [ "$DEFAULT_CHANGED" = true ] && [ "$ENHANCED_CHANGED" = true ]; then
+              APP_CHOICE="both"
+            elif [ "$DEFAULT_CHANGED" = true ]; then
+              APP_CHOICE="repos-hub-default"
+            elif [ "$ENHANCED_CHANGED" = true ]; then
+              APP_CHOICE="repos-hub-enhanced"
+            else
+              APP_CHOICE="both"  # Default fallback
+            fi
+          fi
+          
+          echo "app_choice=$APP_CHOICE" >> $GITHUB_OUTPUT
+          echo "Building: $APP_CHOICE"
+
+      - name: Build repos-hub-default
+        if: steps.apps.outputs.app_choice == 'repos-hub-default' || steps.apps.outputs.app_choice == 'both'
+        run: |
+          # Set base path for GitHub Pages
+          export VITE_BASE_PATH="/${{ github.event.repository.name }}/"
+          pnpm exec nx build @repos-hub/repos-hub-default
+
+      - name: Build repos-hub-enhanced
+        if: steps.apps.outputs.app_choice == 'repos-hub-enhanced' || steps.apps.outputs.app_choice == 'both'
+        run: |
+          # Set base path for GitHub Pages
+          export RSBUILD_PUBLIC_PATH="/${{ github.event.repository.name }}/"
+          pnpm exec nx build @repos-hub/repos-hub-enhanced
+
+      - name: Prepare deployment directory
+        run: |
+          mkdir -p _site
+          
+          # Add .nojekyll file for GitHub Pages SPA support
+          touch _site/.nojekyll
+          
+          # Copy 404.html if it exists
+          if [ -f "public/404.html" ]; then
+            cp public/404.html _site/404.html
+          fi
+          
+          # Create index.html for app selection if both apps are built
+          if [ "${{ steps.apps.outputs.app_choice }}" = "both" ]; then
+            cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Repos Hub - Choose App</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              }
+              .container {
+                text-align: center;
+                padding: 2rem;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+              }
+              h1 {
+                margin-bottom: 2rem;
+                font-size: 2.5rem;
+                font-weight: 300;
+              }
+              .apps {
+                display: flex;
+                gap: 2rem;
+                justify-content: center;
+                flex-wrap: wrap;
+              }
+              .app-card {
+                background: rgba(255, 255, 255, 0.2);
+                padding: 2rem;
+                border-radius: 15px;
+                text-decoration: none;
+                color: white;
+                transition: transform 0.3s ease, background 0.3s ease;
+                min-width: 200px;
+              }
+              .app-card:hover {
+                transform: translateY(-5px);
+                background: rgba(255, 255, 255, 0.3);
+              }
+              .app-card h2 {
+                margin: 0 0 1rem 0;
+                font-size: 1.5rem;
+              }
+              .app-card p {
+                margin: 0;
+                opacity: 0.8;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>🚀 Repos Hub</h1>
+              <div class="apps">
+                <a href="./default/" class="app-card">
+                  <h2>Default App</h2>
+                  <p>Vite + React application</p>
+                </a>
+                <a href="./enhanced/" class="app-card">
+                  <h2>Enhanced App</h2>
+                  <p>Rsbuild + React application</p>
+                </a>
+              </div>
+            </div>
+          </body>
+          </html>
+          EOF
+          
+            # Copy built apps to subdirectories
+            if [ -d "packages/repos-hub-default/dist" ]; then
+              cp -r packages/repos-hub-default/dist _site/default
+            fi
+            if [ -d "packages/repos-hub-enhanced/dist" ]; then
+              cp -r packages/repos-hub-enhanced/dist _site/enhanced
+            fi
+          else
+            # Single app deployment
+            if [ "${{ steps.apps.outputs.app_choice }}" = "repos-hub-default" ] && [ -d "packages/repos-hub-default/dist" ]; then
+              cp -r packages/repos-hub-default/dist/* _site/
+            elif [ "${{ steps.apps.outputs.app_choice }}" = "repos-hub-enhanced" ] && [ -d "packages/repos-hub-enhanced/dist" ]; then
+              cp -r packages/repos-hub-enhanced/dist/* _site/
+            fi
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
