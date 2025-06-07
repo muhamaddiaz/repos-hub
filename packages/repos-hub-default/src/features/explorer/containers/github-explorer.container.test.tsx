@@ -22,10 +22,12 @@ const mockUseUserRepositories = vi.mocked(useUserRepositories);
 describe("GitHubExplorer", () => {
   const mockExplorerState = {
     selectedUsers: [],
+    stagedUsers: [],
     suggestionsQuery: "",
     setSuggestionsQuery: vi.fn(),
     addSelectedUser: vi.fn(),
     removeSelectedUser: vi.fn(),
+    submitStagedUsers: vi.fn(),
   };
 
   beforeEach(() => {
@@ -129,6 +131,7 @@ describe("GitHubExplorer", () => {
 
     mockUseGitHubExplorer.mockReturnValue({
       ...mockExplorerState,
+      stagedUsers: [mockUser],
       selectedUsers: [mockUser],
     });
 

@@ -152,6 +152,10 @@ describe("GitHub Explorer Integration Tests", () => {
     await waitFor(() => expect(screen.getByText("testuser")).toBeInTheDocument());
     await user.click(screen.getByText("testuser"));
 
+    // Submit the staged users by clicking the Search button
+    const searchButton = screen.getByRole("button", { name: "Search" });
+    await user.click(searchButton);
+
     await waitFor(() => {
       expect(screen.getByText("repo1")).toBeInTheDocument();
       expect(screen.getByText("repo2")).toBeInTheDocument();
@@ -190,6 +194,10 @@ describe("GitHub Explorer Integration Tests", () => {
     await waitFor(() => expect(screen.getByText("testuser")).toBeInTheDocument());
     await user.click(screen.getByText("testuser"));
 
+    // Submit the staged users by clicking the Search button
+    const searchButton = screen.getByRole("button", { name: "Search" });
+    await user.click(searchButton);
+
     await waitFor(() => {
       expect(screen.getByRole("status", { name: "Loading repositories" })).toBeInTheDocument();
     });
@@ -220,6 +228,10 @@ describe("GitHub Explorer Integration Tests", () => {
     await waitFor(() => expect(screen.getByText("testuser")).toBeInTheDocument());
     await user.click(screen.getByText("testuser"));
 
+    // Submit the staged users by clicking the Search button
+    const searchButton = screen.getByRole("button", { name: "Search" });
+    await user.click(searchButton);
+
     await waitFor(() => {
       expect(screen.getByText("Failed to load repositories for testuser")).toBeInTheDocument();
       expect(screen.getByText("Try Again")).toBeInTheDocument();
@@ -246,6 +258,10 @@ describe("GitHub Explorer Integration Tests", () => {
     await user.type(searchInput, "test");
     await waitFor(() => expect(screen.getByText("testuser")).toBeInTheDocument());
     await user.click(screen.getByText("testuser"));
+
+    // Submit the staged users by clicking the Search button
+    const searchButton = screen.getByRole("button", { name: "Search" });
+    await user.click(searchButton);
 
     await waitFor(() => {
       expect(screen.getByText("No Public Repositories")).toBeInTheDocument();
@@ -274,11 +290,16 @@ describe("GitHub Explorer Integration Tests", () => {
     await user.clear(searchInput);
     await user.type(searchInput, "test");
 
+    // The user should appear in both the suggestions and the staged area
     await waitFor(() => {
-      const allTestuserElements = screen.queryAllByText("testuser");
-      expect(allTestuserElements.length).toBeGreaterThanOrEqual(2);
+      const stagedUserBadge = screen.getByLabelText("Remove testuser");
+      expect(stagedUserBadge).toBeInTheDocument();
+
+      // If duplicate prevention is working correctly, we should still see the user in staged area
+      expect(screen.getByText("testuser")).toBeInTheDocument();
     });
 
+    // There should still be only one remove button (one staged user)
     expect(screen.getAllByLabelText("Remove testuser")).toHaveLength(1);
   });
 });

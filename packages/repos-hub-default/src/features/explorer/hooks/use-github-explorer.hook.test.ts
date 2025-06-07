@@ -29,7 +29,7 @@ describe("useGitHubExplorer", () => {
     expect(result.current.suggestionsQuery).toBe("");
   });
 
-  it("should add a user to selected users", () => {
+  it("should add a user to staged users", () => {
     const { result } = renderHook(() => useGitHubExplorer());
     const mockUser = createMockUser({ login: "testuser", id: 1 });
 
@@ -37,12 +37,13 @@ describe("useGitHubExplorer", () => {
       result.current.addSelectedUser(mockUser);
     });
 
-    expect(result.current.selectedUsers).toHaveLength(1);
-    expect(result.current.selectedUsers[0]).toEqual(mockUser);
+    expect(result.current.stagedUsers).toHaveLength(1);
+    expect(result.current.stagedUsers[0]).toEqual(mockUser);
+    expect(result.current.selectedUsers).toHaveLength(0); // selectedUsers remains empty until submitted
     expect(mockPrefetch.mutate).toHaveBeenCalledWith("testuser");
   });
 
-  it("should not add duplicate users", () => {
+  it("should not add duplicate users to staged users", () => {
     const { result } = renderHook(() => useGitHubExplorer());
     const mockUser = createMockUser({ login: "testuser", id: 1 });
 
@@ -54,11 +55,11 @@ describe("useGitHubExplorer", () => {
       result.current.addSelectedUser(mockUser);
     });
 
-    expect(result.current.selectedUsers).toHaveLength(1);
+    expect(result.current.stagedUsers).toHaveLength(1);
     expect(mockPrefetch.mutate).toHaveBeenCalledTimes(1);
   });
 
-  it("should add multiple different users", () => {
+  it("should add multiple different users to staged users", () => {
     const { result } = renderHook(() => useGitHubExplorer());
     const mockUser1 = createMockUser({ login: "user1", id: 1 });
     const mockUser2 = createMockUser({ login: "user2", id: 2 });
@@ -71,32 +72,61 @@ describe("useGitHubExplorer", () => {
       result.current.addSelectedUser(mockUser2);
     });
 
-    expect(result.current.selectedUsers).toHaveLength(2);
-    expect(result.current.selectedUsers).toContain(mockUser1);
-    expect(result.current.selectedUsers).toContain(mockUser2);
+    expect(result.current.stagedUsers).toHaveLength(2);
+    expect(result.current.stagedUsers).toContain(mockUser1);
+    expect(result.current.stagedUsers).toContain(mockUser2);
     expect(mockPrefetch.mutate).toHaveBeenCalledTimes(2);
     expect(mockPrefetch.mutate).toHaveBeenCalledWith("user1");
     expect(mockPrefetch.mutate).toHaveBeenCalledWith("user2");
   });
 
-  it("should remove a user from selected users", () => {
+  it("should handle staging and submitting users correctly", () => {
     const { result } = renderHook(() => useGitHubExplorer());
     const mockUser1 = createMockUser({ login: "user1", id: 1 });
     const mockUser2 = createMockUser({ login: "user2", id: 2 });
 
+    // Add users to staging
     act(() => {
       result.current.addSelectedUser(mockUser1);
       result.current.addSelectedUser(mockUser2);
     });
 
+    expect(result.current.stagedUsers).toHaveLength(2);
+    expect(result.current.selectedUsers).toHaveLength(0); // Not yet submitted
+
+    // Submit staged users
+    act(() => {
+      result.current.submitStagedUsers();
+    });
+
+    expect(result.current.selectedUsers).toHaveLength(2);
+    expect(result.current.selectedUsers).toContain(mockUser1);
+    expect(result.current.selectedUsers).toContain(mockUser2);
+  });
+
+  it("should remove a user from both staged and selected users", () => {
+    const { result } = renderHook(() => useGitHubExplorer());
+    const mockUser1 = createMockUser({ login: "user1", id: 1 });
+    const mockUser2 = createMockUser({ login: "user2", id: 2 });
+
+    // Stage and submit users
+    act(() => {
+      result.current.addSelectedUser(mockUser1);
+      result.current.addSelectedUser(mockUser2);
+      result.current.submitStagedUsers();
+    });
+
     expect(result.current.selectedUsers).toHaveLength(2);
 
+    // Remove one user
     act(() => {
       result.current.removeSelectedUser(mockUser1);
     });
 
     expect(result.current.selectedUsers).toHaveLength(1);
     expect(result.current.selectedUsers[0]).toEqual(mockUser2);
+    expect(result.current.stagedUsers).toHaveLength(1);
+    expect(result.current.stagedUsers[0]).toEqual(mockUser2);
   });
 
   it("should handle removing non-existent user gracefully", () => {
@@ -106,10 +136,11 @@ describe("useGitHubExplorer", () => {
 
     act(() => {
       result.current.addSelectedUser(mockUser1);
+      result.current.submitStagedUsers();
     });
 
     act(() => {
-      result.current.removeSelectedUser(mockUser2);
+      result.current.removeSelectedUser(mockUser2); // Try to remove user that doesn't exist
     });
 
     expect(result.current.selectedUsers).toHaveLength(1);
@@ -148,11 +179,16 @@ describe("useGitHubExplorer", () => {
     const mockUser2 = createMockUser({ login: "user2", id: 2 });
     const mockUser3 = createMockUser({ login: "user3", id: 3 });
 
-    // Add users
+    // Add users to staging
     act(() => {
       result.current.addSelectedUser(mockUser1);
       result.current.addSelectedUser(mockUser2);
       result.current.addSelectedUser(mockUser3);
+    });
+
+    // Submit staged users
+    act(() => {
+      result.current.submitStagedUsers();
     });
 
     // Set query

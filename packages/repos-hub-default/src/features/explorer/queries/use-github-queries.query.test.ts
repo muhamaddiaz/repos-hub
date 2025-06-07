@@ -7,7 +7,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createTestQueryClient, createMockUser, createMockRepository } from "../../../test-utils";
 import { useSearchUsers, useUserRepositories } from "./use-github-queries.query";
 
-vi.mock("../services/github-api.service", () => ({
+vi.mock("@repos-hub/shared-ui", () => ({
   githubApiService: {
     searchUsers: vi.fn(),
     getUserDetails: vi.fn(),
