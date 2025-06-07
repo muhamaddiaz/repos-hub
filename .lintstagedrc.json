@@ -1,0 +1,8 @@
+{
+  "*.{ts,tsx,js,jsx}": [
+    "nx affected:lint --fix --files"
+  ],
+  "*.{ts,tsx,js,jsx,json,md,css,scss,html}": [
+    "nx format:write --files"
+  ]
+}
