@@ -13,6 +13,7 @@ export * from "./services/github-api.service";
 export * from "./queries/use-github.query";
 export * from "./react-query";
 export * from "./types/github.type";
+export * from "./schemas/search.schema";
 
 export { SearchBadge } from "./lib/search-bar/search-badge";
 export type { SearchBadgeProps } from "./lib/search-bar/search-badge";

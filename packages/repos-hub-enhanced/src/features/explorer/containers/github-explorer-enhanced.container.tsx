@@ -1,81 +1,24 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { GitHubUser, useUserSuggestions, usePrefetchUserRepositories } from "@repos-hub/shared-ui";
 import Lottie from "lottie-react";
-import { searchQuerySchema } from "packages/shared-ui/src/schemas/search.schema";
-import { useCallback, useState, useRef, useEffect } from "react";
-import { useForm } from "react-hook-form";
 
 import rocketLottie from "../../../assets/rocket.json";
 import { DropdownUsers } from "../components/dropdown-users.component";
-import { useGithubStore } from "../stores/github-users.store";
-
-interface SearchQueryInput {
-  query: string;
-}
+import { useSearch } from "../hooks/use-search.hook";
 
 export const GithubExplorerEnhanced = () => {
-  const { addSelectedUser, selectedUsers, removeSelectedUser } = useGithubStore();
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const form = useForm<SearchQueryInput>({
-    resolver: zodResolver(searchQuerySchema),
-    mode: "onChange",
-    defaultValues: { query: "" },
-  });
-  const { register, setValue, watch } = form;
-  const query = watch("query");
-
-  const { data: userSuggestions = [], isLoading: isLoadingSuggestions } = useUserSuggestions(
+  const {
+    handleFocusInput,
+    handleBlurInput,
+    handleInputChange,
+    handleSelectSuggestion,
+    isLoadingSuggestions,
+    inputRef,
     query,
-    5,
-  );
-  const prefetchUserRepositories = usePrefetchUserRepositories();
-
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const handleInputChange = useCallback((query: string): void => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      if (query.trim().length > 0) {
-        setValue("query", query);
-      }
-      else {
-        setValue("query", "");
-      }
-    }, 300);
-  }, [setValue]);
-
-  const handleSelectSuggestion = useCallback((user: GitHubUser) => {
-    addSelectedUser(user);
-    setValue("query", "");
-
-    prefetchUserRepositories.mutate(user.login);
-  }, [addSelectedUser, setValue, prefetchUserRepositories]);
-
-  const handleFocusInput = useCallback(() => {
-    setShowSuggestions(true);
-  }, [setShowSuggestions]);
-
-  const handleBlurInput = useCallback(() => {
-    setTimeout(() => {
-      setShowSuggestions(false);
-    }, 200);
-  }, [setShowSuggestions]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.metaKey && event.key === "k") {
-        event.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+    register,
+    removeSelectedUser,
+    selectedUsers,
+    showSuggestions,
+    userSuggestions,
+  } = useSearch();
 
   return (
     <div className="space-y-6">
@@ -92,6 +35,20 @@ export const GithubExplorerEnhanced = () => {
             <p className="text-slate-400">Explore GitHub repositories and users easily</p>
           </div>
         </div>
+
+        {selectedUsers.length === 5 && (
+          <div className="alert alert-error">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <span className="font-semibold">Note:</span>
+              {" "}
+              You can select up to 5 users to explore their repositories.
+            </div>
+          </div>
+        )}
+
         <div className="flex gap-2 justify-center">
           {selectedUsers.map(user => (
             <div key={user.id} className="badge badge-soft badge-info">
