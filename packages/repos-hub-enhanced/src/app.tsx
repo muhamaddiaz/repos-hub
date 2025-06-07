@@ -11,11 +11,10 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Layout>
-        <div className="space-y-16">
+        <div className="space-y-8 w-full">
           <GithubExplorerEnhanced />
           <UserRepositories />
         </div>
-
       </Layout>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

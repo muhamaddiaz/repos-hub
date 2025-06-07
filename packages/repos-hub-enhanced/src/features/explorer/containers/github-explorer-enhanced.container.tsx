@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { GitHubUser, useUserSuggestions, usePrefetchUserRepositories } from "@repos-hub/shared-ui";
+import Lottie from "lottie-react";
 import { searchQuerySchema } from "packages/shared-ui/src/schemas/search.schema";
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
+import rocketLottie from "../../../assets/rocket.json";
 import { DropdownUsers } from "../components/dropdown-users.component";
 import { useGithubStore } from "../stores/github-users.store";
 
@@ -15,6 +16,7 @@ interface SearchQueryInput {
 export const GithubExplorerEnhanced = () => {
   const { addSelectedUser, selectedUsers, removeSelectedUser } = useGithubStore();
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<SearchQueryInput>({
     resolver: zodResolver(searchQuerySchema),
@@ -63,18 +65,32 @@ export const GithubExplorerEnhanced = () => {
     }, 200);
   }, [setShowSuggestions]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey && event.key === "k") {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-4">
         <div>
-          <DotLottieReact
-            src="/assets/rocket.lottie"
-            autoplay
-            loop
-            className="w-24 h-24 mx-auto mb-4"
+          <Lottie
+            animationData={rocketLottie}
+            loop={true}
+            className="w-32 h-32 mx-auto mb-4"
+            aria-label="Rocket animation"
           />
-          <h2 className="text-4xl">Github Explorer</h2>
-          <p className="text-slate-400">Explore GitHub repositories and users easily</p>
+          <div className="mt-[-1rem] space-y-2">
+            <h2 className="text-4xl">Github Explorer</h2>
+            <p className="text-slate-400">Explore GitHub repositories and users easily</p>
+          </div>
         </div>
         <div className="flex gap-2 justify-center">
           {selectedUsers.map(user => (
@@ -96,6 +112,7 @@ export const GithubExplorerEnhanced = () => {
           <label className="input w-full rounded-full">
             <input
               {...register("query")}
+              ref={inputRef}
               type="text"
               placeholder="Search Github users"
               autoComplete="off"

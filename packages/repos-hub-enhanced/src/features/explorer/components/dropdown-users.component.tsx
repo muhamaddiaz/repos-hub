@@ -1,4 +1,7 @@
 import { GitHubUser } from "@repos-hub/shared-ui";
+import Lottie from "lottie-react";
+
+import searchAnimation from "../../../assets/search.json";
 
 interface DropdownUsersProps {
   query: string;
@@ -14,15 +17,21 @@ export const DropdownUsers = ({ query, isLoading, userSuggestions, handleSelectS
 
   if (isLoading) {
     return (
-      <div className="absolute top-full left-0 w-full shadow-lg rounded-lg p-4">
-        <p>Loading...</p>
+      <div className="absolute top-full border-slate-700 bg-gray-800 border-[1px] left-0 w-full shadow-lg rounded-lg p-4 z-20">
+        <Lottie
+          animationData={searchAnimation}
+          loop={true}
+          className="w-24 h-24 mx-auto"
+          aria-label="Loading user suggestions"
+        />
+        <p className="text-center text-gray-500">Searching for users...</p>
       </div>
     );
   }
 
   if (!isLoading && userSuggestions.length === 0) {
     return (
-      <div className="absolute top-full left-0 w-full shadow-lg rounded-lg p-4">
+      <div className="absolute top-full border-slate-700 bg-gray-800 border-[1px] left-0 w-full shadow-lg rounded-lg p-4 z-20">
         <p>
           No results found for "
           {query}
