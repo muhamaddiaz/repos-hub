@@ -1,8 +1,11 @@
 {
-  "*.{ts,tsx,js,jsx}": [
-    "nx affected:lint --fix --files"
+  "packages/repos-hub-default/**/*.{ts,tsx,js,jsx}": [
+    "nx lint repos-hub-default --fix"
   ],
-  "*.{ts,tsx,js,jsx,json,md,css,scss,html}": [
-    "nx format:write --files"
+  "packages/repos-hub-enhanced/**/*.{ts,tsx,js,jsx}": [
+    "nx lint repos-hub-enhanced --fix"
+  ],
+  "packages/shared-ui/**/*.{ts,tsx,js,jsx}": [
+    "nx lint shared-ui --fix"
   ]
 }
