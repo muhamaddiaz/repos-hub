@@ -17,11 +17,11 @@ export function useSearchForm({ onInputChange, onSearch, error }: UseSearchFormP
     defaultValues: { query: "" },
   });
 
-  const { watch, setValue, setError, clearErrors } = form;
+  const { watch, setError, clearErrors } = form;
   const query = watch("query");
 
   useEffect(() => {
-    if (onInputChange) {
+    if (onInputChange && query) {
       onInputChange(query);
     }
 
@@ -34,18 +34,15 @@ export function useSearchForm({ onInputChange, onSearch, error }: UseSearchFormP
   }, [query, onInputChange, error, setError, clearErrors, form.formState.errors.query?.type]);
 
   const handleSubmit = (data: SearchQueryInput) => {
-    if (data.query.trim()) {
+    if (data.query && data.query.trim()) {
       onSearch(data.query.trim());
     }
   };
-
-  const resetQuery = () => setValue("query", "");
 
   return {
     ...form,
     query,
     handleSubmit: form.handleSubmit(handleSubmit),
-    resetQuery,
     currentError: form.formState.errors.query?.message,
   };
 }

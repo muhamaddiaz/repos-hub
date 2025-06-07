@@ -16,6 +16,8 @@ export const GitHubExplorer = ({ className }: GitHubExplorerProps) => {
     setSuggestionsQuery,
     addSelectedUser,
     removeSelectedUser,
+    stagedUsers,
+    submitStagedUsers,
   } = useGitHubExplorer();
 
   const { data: userSuggestions = [], isLoading: isLoadingSuggestions } = useUserSuggestions(
@@ -31,12 +33,7 @@ export const GitHubExplorer = ({ className }: GitHubExplorerProps) => {
     }
 
     debounceTimeoutRef.current = setTimeout(() => {
-      if (query.trim().length > 1) {
-        setSuggestionsQuery(query);
-      }
-      else {
-        setSuggestionsQuery("");
-      }
+      setSuggestionsQuery(query.trim() || "");
     }, 300);
   }, [setSuggestionsQuery]);
 
@@ -50,9 +47,10 @@ export const GitHubExplorer = ({ className }: GitHubExplorerProps) => {
       name: suggestion.label,
     };
 
-    addSelectedUser(user);
-    setSuggestionsQuery("");
-  }, [userSuggestions, addSelectedUser, setSuggestionsQuery]);
+    if (stagedUsers.length < 5) {
+      addSelectedUser(user);
+    }
+  }, [userSuggestions, stagedUsers.length, addSelectedUser]);
 
   const suggestions: SearchSuggestion[] = useMemo(() => userSuggestions.map(user => ({
     id: user.id,
@@ -62,21 +60,22 @@ export const GitHubExplorer = ({ className }: GitHubExplorerProps) => {
     value: user.login,
   })), [userSuggestions]);
 
-  const selectedSuggestions: SearchSuggestion[] = useMemo(() => selectedUsers.map(user => ({
+  const selectedSuggestions: SearchSuggestion[] = useMemo(() => stagedUsers.map(user => ({
     id: user.id,
     label: user.login,
     subtitle: user.type === "User" ? "User" : "Organization",
     avatar: user.avatar_url,
     value: user.login,
-  })), [selectedUsers]);
+  })), [stagedUsers]);
 
   const handleRemoveSelectedUser = useCallback((suggestion: SearchSuggestion): void => {
-    const user = selectedUsers.find(u => u.id === suggestion.id);
+    const user = stagedUsers.find(u => u.id === suggestion.id);
 
     if (user) {
       removeSelectedUser(user);
+      submitStagedUsers();
     }
-  }, [selectedUsers, removeSelectedUser]);
+  }, [stagedUsers, removeSelectedUser, submitStagedUsers]);
 
   return (
     <div
@@ -84,8 +83,21 @@ export const GitHubExplorer = ({ className }: GitHubExplorerProps) => {
       className={`container p-4 max-w-5xl mx-auto min-h-screen bg-base-200 ${className || ""}`}
     >
       <div className="mx-auto">
+        {stagedUsers.length === 5 && (
+          <div className="alert alert-error mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <span className="font-semibold">Note:</span>
+              {" "}
+              You can select up to 5 users to explore their repositories.
+            </div>
+          </div>
+        )}
+
         <SearchBar
-          onSearch={() => null}
+          onSearch={submitStagedUsers}
           onInputChange={handleInputChange}
           placeholder="Enter username"
           isLoading={isLoadingSuggestions}

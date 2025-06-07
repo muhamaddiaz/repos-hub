@@ -51,10 +51,9 @@ export function SearchBar({
   loadingMessage = "Searching users...",
   minQueryLength = 1,
 }: SearchBarProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { register, handleSubmit, query, resetQuery, currentError } = useSearchForm({
+  const { register, handleSubmit, query, currentError } = useSearchForm({
     onInputChange,
     onSearch,
     error,
@@ -63,9 +62,8 @@ export function SearchBar({
   const handleSuggestionSelect = useCallback((suggestion: SearchSuggestion) => {
     const newSelectedItems = [...selectedItems, suggestion];
     onSelectedItemsChange?.(newSelectedItems);
-    resetQuery();
     onSuggestionSelect?.(suggestion);
-  }, [selectedItems, onSelectedItemsChange, resetQuery, onSuggestionSelect]);
+  }, [selectedItems, onSelectedItemsChange, onSuggestionSelect]);
 
   const dropdown = useSearchDropdown({
     query,
@@ -89,10 +87,6 @@ export function SearchBar({
           <div className="relative">
             <input
               {...register("query")}
-              ref={(e) => {
-                register("query").ref(e);
-                inputRef.current = e;
-              }}
               type="text"
               placeholder={selectedItems.length > 0 ? "Add more username" : placeholder}
               className={clsx("input input-bordered w-full", {
@@ -104,12 +98,6 @@ export function SearchBar({
               onBlur={dropdown.close}
               onKeyDown={dropdown.handleKeyDown}
             />
-
-            {isLoading && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <span className="loading loading-spinner loading-sm" />
-              </div>
-            )}
           </div>
 
           {currentError && !dropdown.isOpen && (
