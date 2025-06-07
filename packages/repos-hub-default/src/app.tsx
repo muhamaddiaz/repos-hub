@@ -1,8 +1,8 @@
+import { queryClient } from "@repos-hub/shared-ui";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { GitHubExplorer } from "./features/explorer/containers";
-import { queryClient } from "./lib/react-query";
 
 export const App = () => {
   return (

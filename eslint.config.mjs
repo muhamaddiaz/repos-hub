@@ -9,12 +9,12 @@ export default [
   ...nx.configs["flat/javascript"],
   ...nx.configs["flat/react"],
   {
-    ignores: [
-      "**/dist",
-      "**/vite.config.*.timestamp*",
-      "**/vitest.config.*.timestamp*",
-      "**/test-output",
-    ],
+      "ignores": [
+        "**/dist",
+        "**/vite.config.*.timestamp*",
+        "**/vitest.config.*.timestamp*",
+        "**/test-output"
+      ]
   },
   {
     files: [

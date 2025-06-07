@@ -1,7 +1,7 @@
-import { githubApiService } from "@repos-hub/shared-ui";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { queryKeys } from "../../../lib/react-query";
+import { queryKeys } from "../react-query";
+import { githubApiService } from "../services/github-api.service";
 
 export const useSearchUsers = (query: string, page = 1, perPage = 10) => {
   return useQuery({
