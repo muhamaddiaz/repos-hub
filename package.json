@@ -80,6 +80,9 @@
     "deploy:build": "./scripts/deploy-gh-pages.sh build both",
     "deploy:preview": "./scripts/deploy-gh-pages.sh preview both",
     "deploy:pages": "./scripts/deploy-gh-pages.sh deploy",
-    "build:gh-pages": "VITE_BASE_PATH='/repos-hub/' pnpm exec nx build @repos-hub/repos-hub-default && RSBUILD_PUBLIC_PATH='/repos-hub/' pnpm exec nx build @repos-hub/repos-hub-enhanced"
+    "deploy:test-local": "./scripts/test-local-pages.sh 8080",
+    "build:gh-pages": "VITE_BASE_PATH='/repos-hub/default/' pnpm exec nx build @repos-hub/repos-hub-default && RSBUILD_PUBLIC_PATH='/repos-hub/enhanced/' pnpm exec nx build @repos-hub/repos-hub-enhanced",
+    "build:gh-pages:single:default": "VITE_BASE_PATH='/repos-hub/' pnpm exec nx build @repos-hub/repos-hub-default",
+    "build:gh-pages:single:enhanced": "RSBUILD_PUBLIC_PATH='/repos-hub/' pnpm exec nx build @repos-hub/repos-hub-enhanced"
   }
 }

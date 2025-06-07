@@ -92,14 +92,22 @@ jobs:
         if: steps.apps.outputs.app_choice == 'repos-hub-default' || steps.apps.outputs.app_choice == 'both'
         run: |
           # Set base path for GitHub Pages
-          export VITE_BASE_PATH="/${{ github.event.repository.name }}/"
+          if [ "${{ steps.apps.outputs.app_choice }}" = "both" ]; then
+            export VITE_BASE_PATH="/${{ github.event.repository.name }}/default/"
+          else
+            export VITE_BASE_PATH="/${{ github.event.repository.name }}/"
+          fi
           pnpm exec nx build @repos-hub/repos-hub-default
 
       - name: Build repos-hub-enhanced
         if: steps.apps.outputs.app_choice == 'repos-hub-enhanced' || steps.apps.outputs.app_choice == 'both'
         run: |
           # Set base path for GitHub Pages
-          export RSBUILD_PUBLIC_PATH="/${{ github.event.repository.name }}/"
+          if [ "${{ steps.apps.outputs.app_choice }}" = "both" ]; then
+            export RSBUILD_PUBLIC_PATH="/${{ github.event.repository.name }}/enhanced/"
+          else
+            export RSBUILD_PUBLIC_PATH="/${{ github.event.repository.name }}/"
+          fi
           pnpm exec nx build @repos-hub/repos-hub-enhanced
 
       - name: Prepare deployment directory
@@ -197,9 +205,17 @@ jobs:
             # Copy built apps to subdirectories
             if [ -d "packages/repos-hub-default/dist" ]; then
               cp -r packages/repos-hub-default/dist _site/default
+              # Add 404.html to handle SPA routing in subdirectory
+              if [ -f "_site/default/index.html" ]; then
+                cp _site/default/index.html _site/default/404.html
+              fi
             fi
             if [ -d "packages/repos-hub-enhanced/dist" ]; then
               cp -r packages/repos-hub-enhanced/dist _site/enhanced
+              # Add 404.html to handle SPA routing in subdirectory
+              if [ -f "_site/enhanced/index.html" ]; then
+                cp _site/enhanced/index.html _site/enhanced/404.html
+              fi
             fi
           else
             # Single app deployment

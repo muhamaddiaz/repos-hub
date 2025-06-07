@@ -44,25 +44,35 @@ show_usage() {
 build_apps() {
     local app=$1
     local base_path="/$REPO_NAME/"
+    local mode=${2:-"single"}  # single or multi
     
     echo -e "${YELLOW}📦 Building apps for GitHub Pages...${NC}"
     echo -e "Base path: ${GREEN}$base_path${NC}"
+    echo -e "Mode: ${GREEN}$mode${NC}"
     
     case $app in
         "default")
             echo -e "${BLUE}Building repos-hub-default...${NC}"
-            VITE_BASE_PATH="$base_path" pnpm exec nx build @repos-hub/repos-hub-default
+            if [ "$mode" = "multi" ]; then
+                VITE_BASE_PATH="${base_path}default/" pnpm exec nx build @repos-hub/repos-hub-default
+            else
+                VITE_BASE_PATH="$base_path" pnpm exec nx build @repos-hub/repos-hub-default
+            fi
             echo -e "${GREEN}✅ Default app built successfully${NC}"
             ;;
         "enhanced")
             echo -e "${BLUE}Building repos-hub-enhanced...${NC}"
-            RSBUILD_PUBLIC_PATH="$base_path" pnpm exec nx build @repos-hub/repos-hub-enhanced
+            if [ "$mode" = "multi" ]; then
+                RSBUILD_PUBLIC_PATH="${base_path}enhanced/" pnpm exec nx build @repos-hub/repos-hub-enhanced
+            else
+                RSBUILD_PUBLIC_PATH="$base_path" pnpm exec nx build @repos-hub/repos-hub-enhanced
+            fi
             echo -e "${GREEN}✅ Enhanced app built successfully${NC}"
             ;;
         "both")
             echo -e "${BLUE}Building both apps...${NC}"
-            VITE_BASE_PATH="$base_path" pnpm exec nx build @repos-hub/repos-hub-default
-            RSBUILD_PUBLIC_PATH="$base_path" pnpm exec nx build @repos-hub/repos-hub-enhanced
+            VITE_BASE_PATH="${base_path}default/" pnpm exec nx build @repos-hub/repos-hub-default
+            RSBUILD_PUBLIC_PATH="${base_path}enhanced/" pnpm exec nx build @repos-hub/repos-hub-enhanced
             echo -e "${GREEN}✅ Both apps built successfully${NC}"
             ;;
         *)
@@ -77,8 +87,12 @@ build_apps() {
 preview_apps() {
     local app=$1
     
-    # Build first
-    build_apps "$app"
+    # Build first with correct mode
+    if [ "$app" = "both" ]; then
+        build_apps "$app" "multi"
+    else
+        build_apps "$app" "single"
+    fi
     
     echo ""
     echo -e "${YELLOW}👀 Starting preview server...${NC}"
@@ -143,7 +157,11 @@ deploy() {
 # Main script logic
 case "${1:-help}" in
     "build")
-        build_apps "${2:-both}"
+        if [ "${2:-both}" = "both" ]; then
+            build_apps "${2:-both}" "multi"
+        else
+            build_apps "${2:-both}" "single"
+        fi
         ;;
     "preview")
         preview_apps "${2:-both}"
